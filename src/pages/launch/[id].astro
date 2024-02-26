@@ -1,0 +1,45 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getLatestLaunches, getLaunchById } from "../../services/spacex";
+
+export const prerender = false; // en astro.config.mjs nosotros habilitamos que las páginas pueden ser híbridas, por defecto todas son estáticas y con esto deshabilitamos eso y ahora se generan desde el servidor (consultando primero el servidor). Si bien perdemos una gran funcionalidad, también ganamos el poder utilizar las cookies.
+
+// cookies. Esto en páginas estáticas no lo podemos hacer
+// if (Astro.cookies.get('user')) {
+//     console.log('user logged');
+//     Astro.redirect("/")
+//     // O podemos responder Astro.response({ status: 200, headers: {}...})
+// } else {
+//     console.log('user not logged');
+// }
+
+const { id } = Astro.params;
+
+let launch;
+
+if (id) {
+  launch = await getLaunchById({ id });
+}
+
+// export async function getStaticPaths() {
+//   // Llamara a una api externa
+//   //para saber todas las ids que debes generar
+
+//   const launches = await getLatestLaunches();
+
+//   return launches.map((launch) => ({
+//     params: { id: launch.id },
+//   }));
+// }
+---
+<Layout title={`Lanzamiento ${id}`}>
+  <article class="flex flex-col sm:items-center gap-y-4">
+    <img
+    class="w-60 h-auto self-center"
+    src={launch?.links?.patch.small}
+    alt={launch?.name}
+    />
+    <h2 class="text-4xl text-white font-bold">Launch #{launch?.flight_number}</h2>
+    <p class="text-lg">{launch?.details}</p>
+  </article>
+</Layout>
